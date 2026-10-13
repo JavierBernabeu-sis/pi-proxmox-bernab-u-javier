@@ -1,0 +1,15 @@
+  *-network
+       descripción: Ethernet interface
+       producto: RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller
+       fabricante: Realtek Semiconductor Co., Ltd.
+       id físico: 0
+       información del bus: pci@0000:02:00.0
+       nombre lógico: eth0
+       versión: 15
+       serie: b0:6e:bf:d2:91:57
+       capacidad: 1Gbit/s
+       anchura: 64 bits
+       reloj: 33MHz
+       capacidades: pm msi pciexpress msix bus_master cap_list ethernet physical tp mii 10bt 10bt-fd 100bt 100bt-fd 1000bt-fd autonegotiation
+       configuración: autonegotiation=on broadcast=yes driver=r8169 driverversion=6.8.0-40-generic firmware=rtl8168h-2_0.0.2 02/26/15 latency=0 link=no multicast=yes port=twisted pair
+       recursos: irq:19 ioport:e000(size=256) memoria:f7004000-f7004fff memoria:f7000000-f7003fff

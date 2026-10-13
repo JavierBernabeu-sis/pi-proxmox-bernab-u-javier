@@ -1,0 +1,4 @@
+	Vendor: American Megatrends Inc.
+	Version: 0810
+	Release Date: 09/08/2017
+	BIOS Revision: 5.12

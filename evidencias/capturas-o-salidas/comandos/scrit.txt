@@ -1,0 +1,101 @@
+# Inventario del sistema
+
+Fecha: 2026-10-13T09:15:24+02:00
+Host: PC613
+
+## CPU
+
+```text
+Arquitectura:                         x86_64
+modo(s) de operación de las CPUs:     32-bit, 64-bit
+Address sizes:                        39 bits physical, 48 bits virtual
+Orden de los bytes:                   Little Endian
+CPU(s):                               4
+Lista de la(s) CPU(s) en línea:       0-3
+ID de fabricante:                     GenuineIntel
+Nombre del modelo:                    Intel(R) Pentium(R) CPU G4560 @ 3.50GHz
+Familia de CPU:                       6
+Modelo:                               158
+Hilo(s) de procesamiento por núcleo:  2
+Núcleo(s) por «socket»:               2
+«Socket(s)»                           1
+Revisión:                             9
+CPU MHz máx.:                         3500,0000
+CPU MHz mín.:                         800,0000
+BogoMIPS:                             6999.82
+Indicadores:                          fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave rdrand lahf_lm abm 3dnowprefetch cpuid_fault pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust smep erms invpcid mpx rdseed smap clflushopt intel_pt xsaveopt xsavec xgetbv1 xsaves dtherm arat pln pts hwp hwp_notify hwp_act_window hwp_epp vnmi md_clear flush_l1d arch_capabilities
+Virtualización:                       VT-x
+Caché L1d:                            64 KiB (2 instances)
+Caché L1i:                            64 KiB (2 instances)
+Caché L2:                             512 KiB (2 instances)
+Caché L3:                             3 MiB (1 instance)
+Modo(s) NUMA:                         1
+CPU(s) del nodo NUMA 0:               0-3
+Vulnerability Gather data sampling:   Not affected
+Vulnerability Itlb multihit:          KVM: Mitigation: VMX disabled
+Vulnerability L1tf:                   Mitigation; PTE Inversion; VMX conditional cache flushes, SMT vulnerable
+Vulnerability Mds:                    Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Meltdown:               Mitigation; PTI
+Vulnerability Mmio stale data:        Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Reg file data sampling: Not affected
+Vulnerability Retbleed:               Mitigation; IBRS
+Vulnerability Spec rstack overflow:   Not affected
+Vulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:             Mitigation; IBRS; IBPB conditional; STIBP conditional; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                  Mitigation; Microcode
+Vulnerability Tsx async abort:        Not affected
+```
+
+## Memoria
+
+```text
+               total       usado       libre  compartido   búf/caché  disponible
+Mem:           7,6Gi       1,5Gi       4,2Gi       254Mi       2,0Gi       5,7Gi
+Inter:         511Mi          0B       511Mi
+```
+
+## Discos
+
+```text
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda      8:0    0 232,9G  0 disk 
+└─sda1   8:1    0 232,9G  0 part /
+sdb      8:16   1   231G  0 disk 
+└─sdb1   8:17   1 230,9G  0 part /media/usuario/KINGSTON
+sr0     11:0    1  1024M  0 rom  
+```
+
+## Red
+
+```text
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0             DOWN           
+virbr0           DOWN           192.168.122.1/24 
+br-1286cc46a745  UP             172.18.0.1/16 fe80::3cdd:61ff:fefe:2318/64 
+docker0          DOWN           172.17.0.1/16 
+veth8f8cb48@if2  UP             fe80::3c08:3cff:fea9:9fb3/64 
+vethf85e87b@if2  UP             fe80::2c67:ccff:fea5:fc95/64 
+```
+
+## Rutas
+
+```text
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
+172.18.0.0/16 dev br-1286cc46a745 proto kernel scope link src 172.18.0.1 
+192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1 linkdown 
+```
+
+## Espacio
+
+```text
+S.ficheros     Tamaño Usados  Disp Uso% Montado en
+tmpfs            782M   2,0M  780M   1% /run
+/dev/sda1        229G    41G  177G  19% /
+tmpfs            3,9G      0  3,9G   0% /dev/shm
+tmpfs            5,0M   4,0K  5,0M   1% /run/lock
+tmpfs            3,9G      0  3,9G   0% /run/qemu
+tmpfs            782M    84K  782M   1% /run/user/1001
+/dev/sdb1        231G    61G  171G  27% /media/usuario/KINGSTON
+```
+
