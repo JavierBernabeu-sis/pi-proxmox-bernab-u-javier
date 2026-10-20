@@ -32,6 +32,15 @@ las evidencias utiles; evita frases generales como "he trabajado en Proxmox".
 - Incidencias y solucion o estado pendiente: Quedan dudas pendientes de resolver sobre cómo rellenar apartados específicos de la "Ficha inicial"; se deja en pausa hasta poder preguntarle al profesor. Falta conectar el equipo por cable para verificar la red a 1 Gbps.
 - Siguiente paso: Consultar con el profesor las dudas de la ficha inicial para poder cerrarla y preparar la siguiente fase (instalación de Proxmox VE).
 
+## Sesion 04 - 20-10-2026
+- Objetivo: realizar la Fase 2 del proyecto, diseñando la red del laboratorio antes de instalar servicios y documentarla.
+- Acciones realizadas: Revisión de la práctica y de la teoría de redes virtuales del proyecto. Diseño de la red del laboratorio con Proxmox virtualizado en VirtualBox: nodo `pve-bernabeu`, bridges `vmbr0` y `vmbr1`, direccionamiento de `srv-aso` y `cli-linux`, gateway, DNS, puertos y medidas de aislamiento. Redacción del documento docs/02-diagrama-red.md con la tabla de direccionamiento, el diagrama Mermaid y la justificación de aislamiento y permisos. Finalmente, se ha realizado el commit y push al repositorio de GitHub.
+- Decisiones y motivos: Se usan dos bridges: `vmbr0` (adaptador NAT) para la salida a Internet y `vmbr1` (adaptador solo-anfitrión) para la gestión y el laboratorio, de modo que los invitados quedan separados de la red del aula y solo salen a través del nodo. Se cambian las IPs del ejemplo de la teoría por las indicadas por el profesor (red de laboratorio 192.168.60.0/24). No se usan VLAN porque no son obligatorias y no se debe modificar la red del centro. Como DNS se usa el de Google (8.8.8.8). Solo se documenta el puerto del panel web de Proxmox (8006/TCP), porque los puertos del servicio ASO aún no están definidos.
+- Pruebas y resultados: Esta fase es de diseño y no se han ejecutado pruebas todavía. Las comprobaciones de red (rutas, DNS, puertos abiertos) quedan para las fases de instalación y configuración del nodo.
+- Documentos o evidencias: Archivo `docs/02-diagrama-red.md` completado con el diagrama de red, la tabla de direccionamiento y la justificación de aislamiento y permisos.
+- Incidencias y solucion o estado pendiente: Sin incidencias. Queda pendiente confirmar con el profesor el DNS elegido y definir los puertos del servicio ASO cuando se decida el servicio.
+- Siguiente paso: Pasar a la Fase 3 (instalación de Proxmox VE en VirtualBox) siguiendo el diseño de red documentado.
+
 
 Anadir una entrada con esta estructura en cada sesion. El historial de
 GitHub registra los commits; no hace falta incluir el hash del propio
