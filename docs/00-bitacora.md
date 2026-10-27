@@ -41,6 +41,15 @@ las evidencias utiles; evita frases generales como "he trabajado en Proxmox".
 - Incidencias y solucion o estado pendiente: Sin incidencias. Queda pendiente confirmar con el profesor el DNS elegido y definir los puertos del servicio ASO cuando se decida el servicio.
 - Siguiente paso: Pasar a la Fase 3 (instalación de Proxmox VE en VirtualBox) siguiendo el diseño de red documentado.
 
+## Sesion 05 - 27-10-2026
+- Objetivo: realizar la Fase 3 del proyecto, instalando Proxmox VE en una máquina virtual de VirtualBox y dejándolo accesible desde el equipo anfitrión.
+- Acciones realizadas: Revisión del PC de prácticas (VirtualBox 7.2.4, 15,4 GiB de RAM, unos 287 GiB libres). Creación de la red solo-anfitrión 192.168.60.1/24 sin DHCP. Creación de la VM `pve-bernabeu` (Debian 64 bits, 2 vCPU, 8 GiB de RAM, VDI dinámico de 80 GiB en SATA, adaptador NAT y adaptador solo-anfitrión). Instalación de Proxmox VE 9.2 con hostname `pve-bernabeu.lab.test` e IP 10.0.2.15/24. Configuración del bridge `vmbr1` (192.168.60.10/24) en `/etc/network/interfaces`, ajuste de `/etc/hosts` y acceso al panel web desde el navegador del anfitrión. Redacción de docs/03-instalacion-proxmox.md y subida de las evidencias a GitHub.
+- Decisiones y motivos: Se asignan 8 GiB de RAM a la VM porque el PC de prácticas tiene 16 GB y así el anfitrión conserva unos 7 GiB. Se dejan 2 vCPU, porque las vCPU de Proxmox se pueden sobreasignar y la carga del laboratorio es baja. El disco se coloca en un controlador SATA en lugar de IDE por rendimiento. Se usa ext4 en vez de ZFS para no consumir RAM extra. Como DNS se usa 10.0.2.3 (DNS del NAT de VirtualBox), recomendado por la guía. Las interfaces del nodo quedan con los nombres `nic0` y `nic1` por la opción "Pin network interface names" del instalador.
+- Pruebas y resultados: Resultado esperado: nodo instalado y administrable desde el anfitrión. Método: comandos `hostnamectl`, `ip -br addr`, `ip route`, `pveversion` y `df -h` en el nodo, y acceso a `https://192.168.60.10:8006`. Resultado obtenido: Proxmox VE 9.2.2 (kernel 7.0.2-6-pve) sobre Debian 13, `vmbr0` y `vmbr1` activos con sus IPs, ruta por defecto por 10.0.2.2 y panel web accesible.
+- Documentos o evidencias: [Instalación de Proxmox](03-instalacion-proxmox.md) y capturas `s05-panel-proxmox.png`, `s05-comandos-nodo.png` y `s05-interfaces.png`.
+- Incidencias y solucion o estado pendiente: El instalador se quedaba en pantalla negra; el log de VirtualBox mostró que la VM estaba creada como de 32 bits ("Other"), y se solucionó cambiando el tipo a Debian (64-bit). Proxmox avisó de que no detectaba KVM porque la virtualización anidada estaba desactivada; queda pendiente activarla y comprobarla con `grep -c vmx /proc/cpuinfo`. También queda pendiente actualizar en docs/02-diagrama-red.md los nombres de interfaz (`nic0`/`nic1`) y el DNS (10.0.2.3).
+- Siguiente paso: Activar la virtualización anidada, configurar la salida a Internet de los invitados (reenvío y NAT) y pasar a la Fase 4 (configuración base del nodo).
+
 
 Anadir una entrada con esta estructura en cada sesion. El historial de
 GitHub registra los commits; no hace falta incluir el hash del propio
