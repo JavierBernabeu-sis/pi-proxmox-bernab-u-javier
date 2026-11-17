@@ -99,4 +99,156 @@ df -h                                         # espacio en disco
  
 Proxmox VE 9.2 queda instalado en la VM `pve-bernabeu` de VirtualBox, con los dos bridges del diseño de red y el panel accesible desde el anfitrión en 192.168.60.10:8006. Queda pendiente activar la virtualización anidada antes de desplegar las máquinas del laboratorio.
  
+## Fase 4. Configuración base del nodo
+
+### Objetivo
+
+Comprobar que el nodo tiene una base estable antes de crear las máquinas: dónde se guardará cada cosa, que la red coincide con el diseño de la fase 2, quién puede administrar el nodo y cómo se reparten los recursos.
+
+### Cambios respecto a la instalación de la sesión 05
+
+La VM `pve-bernabeu` se borró y se reinstaló en la sesión 06 (10-11-2026). La instalación sigue el mismo procedimiento de arriba, con estos cambios:
+
+| Elemento | Sesión 05 | Ahora | Motivo |
+|---|---|---|---|
+| vCPU de la VM | 2 | 3 | Más fluidez y mejor rendimiento, ya que el nodo ejecutará virtualización anidada y con una vCPU más va mejor |
+| Disco de la VM | VDI dinámico de 80 GiB | VDI dinámico de 80 GiB (ocupa 4,3 GB) | El profesor pidió reservarlo fijo, pero VirtualBox devolvió `VERR_DISK_FULL`; se dejó dinámico |
+| Virtualización anidada | Desactivada | Activada (*Nested VT-x/AMD-V*) | Necesaria para que Proxmox pueda ejecutar VMs KVM |
+| Aceleración | — | Paravirtualización KVM y *Nested Paging* | Rendimiento de la VM |
+| Red en el instalador | Configurada en el instalador | Sin configurar; se hizo después a mano | Indicación del profesor |
+
+Tras instalar, `/etc/network/interfaces` se configuró a mano con los dos bridges y `/etc/hosts` se corrigió, porque el instalador había dejado una IP de la red del aula (`10.112.7.107`). Ahora el nombre `pve-bernabeu.lab.test` apunta a `192.168.60.10`.
+
+Configuración de la VM en VirtualBox:
+
+![Procesador de la VM](../evidencias/capturas-o-salidas/comandos/s07-vbox-procesador.png)
+
+![Aceleración de la VM](../evidencias/capturas-o-salidas/comandos/s07-vbox-aceleracion.png)
+
+![Disco de la VM](../evidencias/capturas-o-salidas/comandos/s07-vbox-disco.png)
+
+### 1. Almacenamiento
+
+| Almacenamiento | Tipo | Contenido que admite | Espacio libre | Uso previsto |
+|---|---|---|---|---|
+| `local` | Directorio (`/var/lib/vz`) | Backup, Import, ISO image, Container template | 23,6 GiB de 29,3 GiB (14,15 % usado) | ISOs de Ubuntu Server, plantillas y copias de la fase 9 |
+| `local-lvm` | LVM-Thin | Disk image, Container | 29,9 GiB de 29,9 GiB (0 % usado) | Discos de `srv-aso` y `cli-linux` |
+
+Los dos almacenamientos están activos (`pvesm status`) y habilitados en el panel. `local` está en la raíz del nodo (`/dev/mapper/pve-root`, 30 GB con 4,2 GB usados según `df -h`). `local-lvm` no admite ISOs ni copias, por eso las copias irán a `local`, que sí admite *Backup*.
+
+![Almacenamiento en el panel](../evidencias/capturas-o-salidas/comandos/s07-storage-panel.png)
+
+![pvesm status](../evidencias/capturas-o-salidas/comandos/s07-pvesm-status.png)
+
+![df -h del nodo](../evidencias/capturas-o-salidas/comandos/s07-df-nodo.png)
+
+**Espacio del anfitrión:** la partición `/dev/sda6` del PC tiene 198 GB, con 120 GB usados y 69 GB libres (64 %). La carpeta de la VM ocupa de momento 4,3 GB. Al ser un VDI dinámico, crece al usarse, así que hay que vigilar tanto el `df -h` del anfitrión como el almacenamiento de Proxmox.
+
+![Espacio del anfitrión](../evidencias/capturas-o-salidas/comandos/s07-espacio-anfitrion.png)
+
+**Riesgo:** las copias se guardarán en el mismo disco que el laboratorio. Si falla ese disco, se pierden a la vez las máquinas y sus copias.
+
+### 2. Red
+
+| Interfaz | Adaptador de VirtualBox | Bridge | IP | Uso |
+|---|---|---|---|---|
+| `nic0` (MAC 08:00:27:E3:38:C7) | Adaptador 1 (NAT) | `vmbr0` | 10.0.2.15/24, gw 10.0.2.2 | Salida a Internet |
+| `nic1` (MAC 08:00:27:DC:75:81) | Adaptador 2 (solo-anfitrión, `vboxnet0`) | `vmbr1` | 192.168.60.10/24 | Gestión y laboratorio |
+
+`ip -br addr` muestra `vmbr0` con 10.0.2.15/24 y `vmbr1` con 192.168.60.10/24, ambos UP. `ip route` muestra la ruta por defecto por 10.0.2.2 en `vmbr0` y la red 192.168.60.0/24 en `vmbr1`. Cada interfaz se ha relacionado con su adaptador por la dirección MAC. Los dos adaptadores tienen el modo promiscuo en "Permitir todo". Coincide con el diseño de [02-diagrama-red.md](02-diagrama-red.md).
+
+![Red en el panel](../evidencias/capturas-o-salidas/comandos/s07-network-panel.png)
+
+![Adaptador 1 de VirtualBox](../evidencias/capturas-o-salidas/comandos/s07-vbox-adaptador1.png)
+
+![Adaptador 2 de VirtualBox](../evidencias/capturas-o-salidas/comandos/s07-vbox-adaptador2.png)
+
+![ip -br addr](../evidencias/capturas-o-salidas/comandos/s07-ip-addr.png)
+
+![ip route](../evidencias/capturas-o-salidas/comandos/s07-ip-route.png)
+
+**Conectividad:** el `ping` está bloqueado por el filtrado del centro, así que no sirve como prueba. El DNS resuelve (`getent hosts google.com`) y el nodo accede por HTTPS al repositorio de Debian (`curl -sI https://deb.debian.org` → `HTTP/2 200`).
+
+![ping bloqueado](../evidencias/capturas-o-salidas/comandos/s07-ping.png)
+
+![Conectividad](../evidencias/capturas-o-salidas/comandos/s07-conectividad.png)
+
+**Repositorios:** `apt update` descarga correctamente los repositorios de Debian (`trixie`, `trixie-updates` y `trixie-security`). Los repositorios `enterprise` de Proxmox devuelven `401 Unauthorized` porque no hay suscripción.
+
+![apt update](../evidencias/capturas-o-salidas/comandos/s07-apt-update.png)
+
+**Virtualización anidada:** `grep -Ec '(vmx|svm)' /proc/cpuinfo` devuelve 6, por lo que Proxmox ve las extensiones de virtualización. Queda probar el arranque de una VM KVM en la fase 6.
+
+![Virtualización anidada](../evidencias/capturas-o-salidas/comandos/s07-vmx.png)
+
+### 3. Accesos administrativos
+
+| Cuenta | Realm | Permisos | Uso |
+|---|---|---|---|
+| `root@pam` | Linux PAM | Administrador completo del nodo | Administración desde el panel y la consola |
+
+No se han creado usuarios ni roles adicionales porque el profesor no lo ha pedido. Las contraseñas no aparecen en las capturas ni en el repositorio.
+
+El firewall de Proxmox queda **desactivado**, porque no es obligatorio en esta práctica. Medidas de aislamiento del laboratorio:
+
+- La red del laboratorio (192.168.60.0/24) es solo-anfitrión, separada de la red del aula.
+- Los invitados solo saldrán a Internet a través del nodo (reenvío y NAT, que se configurarán en la fase 6).
+- El panel solo es accesible desde el anfitrión por la red solo-anfitrión.
+
+![Usuarios](../evidencias/capturas-o-salidas/comandos/s07-usuarios.png)
+
+### 4. Reparto de recursos
+
+**Anfitrión:** 15,4 GiB de RAM. La VM usa 8 GiB, así que quedan unos 7 GiB para el sistema, VirtualBox y el navegador.
+
+**VM Proxmox:** 3 vCPU, 8 GiB de RAM.
+
+| Elemento | CPU/vCPU | RAM | Disco o almacenamiento | Motivo del reparto |
+|---|---|---|---|---|
+| Nodo Proxmox | Comparte las 3 vCPU | 2 GiB | 30 GB (`pve-root`) | Hipervisor y servicios de Proxmox |
+| `srv-aso` | 2 vCPU | 2 GiB | 15 GB en `local-lvm` | Ubuntu Server sin interfaz gráfica con Samba |
+| `cli-linux` | 1 vCPU | 1 GiB | 10 GB en `local-lvm` | Ubuntu Server sin interfaz gráfica, solo pruebas |
+| Plantillas, ISO, copias y margen | — | 3 GiB de margen | `local` (23,6 GiB libres) | ISO de Ubuntu Server (~3 GB), plantilla y copias |
+
+Las vCPU se pueden sobreasignar porque la carga del laboratorio es baja. Con 5 GiB repartidos quedan 3 GiB de margen, de modo que el nodo se puede administrar con el servidor y el cliente encendidos. Los discos de `local-lvm` son *thin*: solo ocupan lo que se usa.
+
+### Comandos usados en la fase 4
+
+```bash
+pvesm status                              # almacenamientos y espacio libre
+df -h                                     # espacio del nodo
+df -h /home/javbermar2                    # espacio del anfitrión (en el PC)
+du -sh ~/VirtualBox\ VMs/pve-bernabeu     # tamaño de la VM (en el PC)
+ip -br addr                               # IPs de cada interfaz
+ip route                                  # rutas y gateway
+getent hosts google.com                   # resolución DNS
+curl -sI https://deb.debian.org | head -n 1   # salida a Internet por HTTPS
+apt update                                # acceso a los repositorios
+grep -Ec '(vmx|svm)' /proc/cpuinfo        # virtualización anidada
+```
+
+### Incidencias de la fase 4
+
+**3. VM borrada.**
+- Síntoma: la VM `pve-bernabeu` desapareció de VirtualBox.
+- Solución: reinstalación completa siguiendo el procedimiento de la sesión 05, con los cambios de la tabla anterior.
+
+**4. Error `VERR_DISK_FULL` al crear el disco fijo.**
+- Síntoma: VirtualBox no pudo crear el VDI fijo de 80 GB (`VBOX_E_FILE_ERROR`).
+- Causa: no había espacio suficiente para reservar el disco completo en `/home/javbermar2`.
+- Solución: crear el disco como dinámico.
+
+**5. `ping` bloqueado.**
+- Causa: el filtrado de la red del centro bloquea ICMP.
+- Solución: comprobar la conectividad con `getent hosts` y `curl`.
+
+**6. `apt update` con error `401 Unauthorized`.**
+- Causa: los repositorios `enterprise` de Proxmox requieren suscripción.
+- Estado: pendiente de consultar con el profesor si se sustituyen por el repositorio No-Subscription.
+
+### Conclusión de la fase 4
+
+El panel es accesible desde el anfitrión, el nodo tiene la conectividad prevista (DNS y salida por HTTPS), los almacenamientos están disponibles y el reparto de recursos deja margen para continuar. Quedan pendientes los repositorios `enterprise` y la prueba de una VM KVM en la fase 6.
+
+
 [Volver al indice](../README.md)
