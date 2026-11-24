@@ -206,9 +206,10 @@ El firewall de Proxmox queda **desactivado**, porque no es obligatorio en esta p
 | Elemento | CPU/vCPU | RAM | Disco o almacenamiento | Motivo del reparto |
 |---|---|---|---|---|
 | Nodo Proxmox | Comparte las 3 vCPU | 2 GiB | 30 GB (`pve-root`) | Hipervisor y servicios de Proxmox |
-| `srv-aso` | 2 vCPU | 2 GiB | 15 GB en `local-lvm` | Ubuntu Server sin interfaz gráfica con Samba |
-| `cli-linux` | 1 vCPU | 1 GiB | 10 GB en `local-lvm` | Ubuntu Server sin interfaz gráfica, solo pruebas |
-| Plantillas, ISO, copias y margen | — | 3 GiB de margen | `local` (23,6 GiB libres) | ISO de Ubuntu Server (~3 GB), plantilla y copias |
+| `srv-aso` | 2 vCPU | 2 GiB | 12 GiB en `local-lvm` | Ubuntu Server sin interfaz gráfica con Samba |
+| `cli-linux` | 1 vCPU | 1 GiB | 8 GiB en `local-lvm` | Ubuntu Server sin interfaz gráfica, solo pruebas |
+| Plantilla Ubuntu Server | — | — (no se enciende) | 8 GiB en `local-lvm` | Base para clonar `srv-aso` y `cli-linux` |
+| ISO, copias y margen | — | 3 GiB de margen | `local` (23,6 GiB libres) | ISO de Ubuntu Server (~3 GB) y copias |
 
 Las vCPU se pueden sobreasignar porque la carga del laboratorio es baja. Con 5 GiB repartidos quedan 3 GiB de margen, de modo que el nodo se puede administrar con el servidor y el cliente encendidos. Los discos de `local-lvm` son *thin*: solo ocupan lo que se usa.
 
@@ -244,11 +245,11 @@ grep -Ec '(vmx|svm)' /proc/cpuinfo        # virtualización anidada
 
 **6. `apt update` con error `401 Unauthorized`.**
 - Causa: los repositorios `enterprise` de Proxmox requieren suscripción.
-- Estado: pendiente de consultar con el profesor si se sustituyen por el repositorio No-Subscription.
+- Estado: resuelta en la sesión 08. Se desactivaron los repositorios `enterprise` y se añadió el repositorio No-Subscription (ver "Correcciones", punto 2).
 
 ### Conclusión de la fase 4
 
-El panel es accesible desde el anfitrión, el nodo tiene la conectividad prevista (DNS y salida por HTTPS), los almacenamientos están disponibles y el reparto de recursos deja margen para continuar. Quedan pendientes los repositorios `enterprise` y la prueba de una VM KVM en la fase 6.
+El panel es accesible desde el anfitrión, el nodo tiene la conectividad prevista (DNS y salida por HTTPS), los almacenamientos están disponibles y el reparto de recursos deja margen para continuar. Los repositorios quedan sin errores (ver "Correcciones", punto 2). Queda pendiente la prueba de una VM KVM en la fase 6.
 
 ## Correcciones tras la revisión del 19-11-2026
 
