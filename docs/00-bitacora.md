@@ -68,6 +68,15 @@ las evidencias utiles; evita frases generales como "he trabajado en Proxmox".
 - Incidencias y solucion o estado pendiente: El `ping` está bloqueado por el filtrado del centro; la conectividad se comprobó con `getent hosts` y `curl`. `apt update` da `401 Unauthorized` en los repositorios `enterprise` de Proxmox por no tener suscripción; queda pendiente consultar con el profesor si se sustituyen por el repositorio No-Subscription. Queda pendiente probar el arranque de una VM KVM en la fase 6.
 - Siguiente paso: Pasar a la Fase 5 (plantilla Linux con Ubuntu Server).
 
+## Sesion 08 - 24-11-2026
+- Objetivo: corregir los puntos indicados en la revisión del profesor del 19-11-2026 (nota 7,3): mezcla de redes en el diseño, errores `401` en los repositorios y cálculo del espacio para la plantilla y las dos máquinas.
+- Acciones realizadas: Cambio en docs/02-diagrama-red.md de las direcciones 192.168.56.x a 192.168.60.x, y actualización de los nombres de interfaz (`nic0` y `nic1`), el DNS (10.0.2.3) y los recursos de cada máquina. Desactivación de los repositorios `enterprise` de `pve` y `ceph` y alta del repositorio `No-Subscription` desde *Actualizaciones → Repositorios*. Revisión del espacio con `pvesm status` y `lvs` en el nodo, y con `df -h` y `du -sh` en el anfitrión. Redacción del apartado "Correcciones" al final de docs/03-instalacion-proxmox.md y subida de 5 capturas `s08-*.png`.
+- Decisiones y motivos: Se usa el repositorio `No-Subscription` porque el nodo no tiene suscripción y es un laboratorio. No se instalan las 224 actualizaciones pendientes para no cambiar el kernel sin necesidad. Se reducen los discos a 8 GiB (plantilla), 12 GiB (`srv-aso`) y 8 GiB (`cli-linux`) para que los tres quepan en los 29,93 GiB de `local-lvm` aunque se llenen.
+- Pruebas y resultados: Resultado esperado: `apt update` sin errores y reparto de disco que quepa. Método: `cat /etc/apt/sources.list.d/*.sources`, `apt update`, `pvesm status`, `lvs`, `df -h` y `du -sh`. Resultado obtenido: los repos `enterprise` quedan con `Enabled: false` y `apt update` termina sin errores. Los tres discos suman 28 GiB de 29,93 GiB. El anfitrión tiene 65 GiB libres y la VM ocupa 4,5 GiB.
+- Documentos o evidencias: [Correcciones en Instalación de Proxmox](03-instalacion-proxmox.md), [Diagrama de red](02-diagrama-red.md) y capturas `s08-apt-401-antes.png`, `s08-repositorios-panel.png`, `s08-apt-update-ok.png`, `s08-pvesm-lvs.png` y `s08-espacio-anfitrion.png`.
+- Incidencias y solucion o estado pendiente: En el peor caso el VDI dinámico (máximo 80 GiB) no cabría en los 65 GiB libres del anfitrión. Se deja como limitación con una medida: revisar `df -h` antes de crear máquinas o copias y parar si quedan menos de 10 GiB libres. Queda pendiente completar el inicio de la memoria técnica.
+- Siguiente paso: Completar el inicio de docs/10-memoria-tecnica.md (resumen, necesidad y objetivos, alcance) y pasar a la Fase 5 (plantilla Linux con Ubuntu Server).
+
 
 Anadir una entrada con esta estructura en cada sesion. El historial de
 GitHub registra los commits; no hace falta incluir el hash del propio
