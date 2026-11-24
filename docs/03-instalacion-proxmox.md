@@ -250,5 +250,56 @@ grep -Ec '(vmx|svm)' /proc/cpuinfo        # virtualización anidada
 
 El panel es accesible desde el anfitrión, el nodo tiene la conectividad prevista (DNS y salida por HTTPS), los almacenamientos están disponibles y el reparto de recursos deja margen para continuar. Quedan pendientes los repositorios `enterprise` y la prueba de una VM KVM en la fase 6.
 
+## Correcciones tras la revisión del 19-11-2026
+
+En la revisión del trabajo publicado hasta la fase 4 se indicaron tres puntos a corregir: la mezcla de redes en el diseño, los errores `401` de los repositorios y el cálculo del espacio para la plantilla y las dos máquinas. Se corrigen en la sesión 08 (24-11-2026).
+
+### 1. Red del diseño (192.168.56.0/24 → 192.168.60.0/24)
+
+- Problema: en [02-diagrama-red.md](02-diagrama-red.md) quedaban direcciones de la red 192.168.56.0/24, que es la red solo-anfitrión por defecto de VirtualBox. La red que se usa de verdad es 192.168.60.0/24, la indicada por el profesor y configurada en `vboxnet0`.
+- Corrección: se cambian a 192.168.60.0/24 la IP de gestión del nodo (`vmbr1` 192.168.60.10), las IPs de `srv-aso` (192.168.60.20) y `cli-linux` (192.168.60.30), el gateway de las VMs (192.168.60.10), la regla del panel (solo desde 192.168.60.1) y la tabla de direccionamiento.
+- Además se han actualizado en el diseño los nombres de interfaz (`nic0` y `nic1`), el DNS (10.0.2.3) y los recursos de cada máquina, para que coincidan con el nodo instalado.
+- Comprobación: `/etc/network/interfaces` del nodo tiene `vmbr1` con 192.168.60.10/24 sobre `nic1` (captura `s05-interfaces.png`), igual que el diseño.
+
+### 2. Errores `401 Unauthorized` en `apt update`
+
+- Síntoma: `apt update` daba `401 Unauthorized` en los repositorios `enterprise` de Proxmox (`pve` y `ceph`).
+- Causa: los repositorios `enterprise` solo funcionan con una suscripción de pago, y el nodo no la tiene.
+- Solución: en *pve-bernabeu → Updates → Repositories* se desactivaron los repositorios `enterprise` de `pve` y `ceph` y se añadió el repositorio `No-Subscription`. Este repositorio no se recomienda para producción, pero es el adecuado para un laboratorio sin suscripción.
+- Comprobación: `pve-enterprise.sources` y `ceph.sources` quedan con `Enabled: false`, `proxmox.sources` usa `pve-no-subscription` y `apt update` termina sin errores. No se han instalado las actualizaciones pendientes.
+
+![Repositorios y apt update sin errores](../evidencias/capturas-o-salidas/comandos/s08-repositorios.png)
+
+### 3. Espacio para la plantilla y las dos máquinas
+
+#### Cálculo en `local-lvm`
+
+`pvesm status` y `lvs` muestran que `local-lvm` (thin pool `data`) tiene 29,93 GiB y está vacío. La plantilla y las dos máquinas guardarán su disco ahí, porque `local-lvm` es el almacenamiento para discos de VM. `local` (23,6 GiB libres) queda para la ISO de Ubuntu Server y las copias.
+
+| Disco | Tamaño asignado | Almacenamiento |
+|---|---|---|
+| Plantilla Ubuntu Server | 8 GiB | `local-lvm` |
+| `srv-aso` | 12 GiB | `local-lvm` |
+| `cli-linux` | 8 GiB | `local-lvm` |
+| **Total** | **28 GiB de 29,93 GiB** | Margen de 1,93 GiB |
+
+Con los tamaños de antes (plantilla, 15 GiB y 10 GiB) los discos no cabían si se llenaban. Se han reducido para que quepan incluso en ese caso. Como `local-lvm` es *thin*, en la práctica cada disco solo ocupa lo que usa (una instalación de Ubuntu Server sin interfaz gráfica ocupa unos 4-5 GiB).
+
+![pvesm status y lvs](../evidencias/capturas-o-salidas/comandos/s08-pvesm-lvs.png)
+
+#### Crecimiento del disco virtual en el anfitrión
+
+El VDI de la VM es dinámico: ahora ocupa 4,5 GiB (`du -sh`) y puede crecer hasta 80 GiB. El anfitrión tiene 65 GiB libres (`df -h`), 4 GiB menos que en la sesión 07 porque el PC también se usa para otras prácticas.
+
+- Peor caso: si el VDI llegara a 80 GiB necesitaría unos 75,5 GiB más, y solo hay 65 GiB libres. No cabría.
+- Caso previsto: raíz del nodo con ISO y copias (unos 12 GiB) más los discos de las tres máquinas en uso real (unos 13 GiB) dan un VDI de unos 25-30 GiB. Quedarían unos 35 GiB libres en el anfitrión.
+
+Medidas para que no se repita el error de disco lleno:
+- Revisar `df -h` en el anfitrión y `du -sh` de la VM antes de crear cada máquina y antes de cada copia.
+- Si en el anfitrión quedan menos de 10 GiB libres, no crear más máquinas ni copias y borrar copias antiguas.
+- Limitación: el VDI dinámico no se reduce solo al borrar datos dentro de la VM.
+
+![Espacio del anfitrión](../evidencias/capturas-o-salidas/comandos/s08-espacio-anfitrion.png)
+
 
 [Volver al indice](../README.md)
