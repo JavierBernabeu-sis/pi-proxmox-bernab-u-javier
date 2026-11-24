@@ -268,7 +268,15 @@ En la revisión del trabajo publicado hasta la fase 4 se indicaron tres puntos a
 - Solución: en *pve-bernabeu → Updates → Repositories* se desactivaron los repositorios `enterprise` de `pve` y `ceph` y se añadió el repositorio `No-Subscription`. Este repositorio no se recomienda para producción, pero es el adecuado para un laboratorio sin suscripción.
 - Comprobación: `pve-enterprise.sources` y `ceph.sources` quedan con `Enabled: false`, `proxmox.sources` usa `pve-no-subscription` y `apt update` termina sin errores. No se han instalado las actualizaciones pendientes.
 
-![Repositorios y apt update sin errores](../evidencias/capturas-o-salidas/comandos/s08-repositorios.png)
+Antes de la corrección:
+
+![apt update con error 401](../evidencias/capturas-o-salidas/comandos/s08-apt-401-antes.png)
+
+Después de la corrección:
+
+![Repositorios en el panel](../evidencias/capturas-o-salidas/comandos/s08-repositorios-panel.png)
+
+![Repositorios y apt update sin errores](../evidencias/capturas-o-salidas/comandos/s08-apt-update-ok.png)
 
 ### 3. Espacio para la plantilla y las dos máquinas
 
