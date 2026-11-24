@@ -6,11 +6,11 @@ URL GitHub: https://github.com/JavierBernabeu-sis/pi-proxmox-bernab-u-javier
 
 ## Objetivo
 
-PENDIENTE: explicar la necesidad que resolvera el laboratorio.
+Montar un laboratorio de virtualización con Proxmox VE para practicar la administración de un nodo y de un servicio de red (Samba en `srv-aso`, probado desde `cli-linux`), con automatización, copias y revisión de seguridad, sin coste de licencias y sin modificar la red del centro.
 
 ## Modalidad
 
-PENDIENTE: fisica o virtualizada; justificar la eleccion.
+Virtualizada. Proxmox VE 9.2 se instala en una máquina virtual de VirtualBox (`pve-bernabeu`, 3 vCPU, 8 GiB de RAM y 80 GiB de disco) en el PC de prácticas. Se elige así porque no hay un equipo físico libre para formatear, el PC de prácticas tiene más RAM (15,4 GiB) que el equipo del inventario (8 GB) y el laboratorio queda aislado en una red solo-anfitrión sin tocar la red del aula.
 
 ## Indice de documentacion
 
@@ -30,12 +30,12 @@ PENDIENTE: fisica o virtualizada; justificar la eleccion.
 
 ## Estado
 
-- [ ] GitHub creado y primer commit publicado
-- [ ] URL entregada y acceso docente comprobado
-- [ ] Modalidad indicada
-- [ ] Inventario
-- [ ] Diagrama de red
-- [ ] Instalacion Proxmox
+- [x] GitHub creado y primer commit publicado
+- [x] URL entregada y acceso docente comprobado
+- [x] Modalidad indicada
+- [x] Inventario
+- [x] Diagrama de red
+- [x] Instalacion Proxmox
 - [ ] Plantilla Linux
 - [ ] VMs/LXC
 - [ ] Servicio ASO
